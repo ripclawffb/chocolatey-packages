@@ -24,7 +24,7 @@ If(!(Test-Path -Path $configDirectory)){
 
 If (Get-Service -Name "telegraf" -ErrorAction SilentlyContinue) {
   $servicePath = (Get-WmiObject win32_service | ?{$_.Name -like 'telegraf'}).PathName.Split('--')[0].Trim().Replace("""","")
-  & $servicePath --service uninstall
+  & $servicePath service uninstall
 }
 
 If (Test-Path $telegrafRegPath) {

@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = 'Stop';
+$ErrorActionPreference = 'Stop';
 
 $unzipFolder     = $env:ProgramFiles
 $installFolder   = "$unzipFolder\telegraf"
@@ -7,8 +7,8 @@ $configDirectory = Join-Path $installFolder 'telegraf.d'
 $packageName     = 'telegraf'
 $softwareName    = 'telegraf*'
 $toolsDir        = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-$url             = 'https://dl.influxdata.com/telegraf/releases/telegraf-1.40.0_windows_i386.zip '
-$url64           = 'https://dl.influxdata.com/telegraf/releases/telegraf-1.40.0_windows_amd64.zip '
+$url             = 'https://dl.influxdata.com/telegraf/releases/telegraf-1.40.0_windows_i386.zip'
+$url64           = 'https://dl.influxdata.com/telegraf/releases/telegraf-1.40.0_windows_amd64.zip'
 $fileLocation    = Join-Path $installFolder 'telegraf.exe'
 $telegrafRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\telegraf"
 
@@ -64,14 +64,12 @@ If((Test-Path -Path "$installFolder-$version")){
   Remove-Item -Path "$installFolder-$version" -Recurse -Force
 }
 
-Install-ChocolateyInstallPackage @packageArgs
-
-If (Test-Path $baseConfigFile -ErrorAction SilentlyContinue) {
+If (Test-Path "$installFolder\telegraf.backup.conf" -ErrorAction SilentlyContinue) {
+  Move-Item -Force -Path "$installFolder\telegraf.backup.conf" -Destination "$installFolder\telegraf.conf"
+} ElseIf (Test-Path $baseConfigFile -ErrorAction SilentlyContinue) {
   Write-Host "Appending discard output to telegraf.conf so service can start"
   Add-Content -Path $baseConfigFile -NoNewline -Value "[[outputs.discard]]`n  # no configuration`n"
 }
 
-If (Test-Path "$installFolder\telegraf.backup.conf" -ErrorAction SilentlyContinue) {
-  Move-Item -Force -Path "$installFolder\telegraf.backup.conf" -Destination "$installFolder\telegraf.conf"
-  Restart-Service -Name "telegraf"
-}
+Install-ChocolateyInstallPackage @packageArgs
+
